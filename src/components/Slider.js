@@ -1,18 +1,15 @@
 import React from "react";
 import ImageSlider from "./ImageSlider";
-import image1 from "../assets/tokapi1.png";
-import image2 from "../assets/tokapi2.png";
-import { motion } from "framer-motion";
+import Page1 from "../pages/Page1";
+import Page2 from "../pages/Page2";
+
 const Slider = () => {
-  const slides = [image1, image2];
-  const containerStyles = {
-    margin: "0 auto",
-  };
   return (
-    <div>
-      <div style={containerStyles} className="w-46 h-72 ">
-        <ImageSlider slides={slides} />
-      </div>
+    <div className="w-46 h-72 mx-auto my-0">
+      <ImageSlider>
+        <Page1 />
+        <Page2 />
+      </ImageSlider>
     </div>
   );
 };

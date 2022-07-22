@@ -1,8 +1,22 @@
-import React, { useState } from "react";
-import { motion } from "framer-motion";
-const ImageSlider = ({ slides }) => {
-  const [currentIndex, setCurrentIndex] = useState(0);
+import React, { useState, useEffect } from "react";
 
+const ImageSlider = ({ slides, children }) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isSwiping, setSwiping] = useState(false);
+  const [horizontalValue, setHorizontalValue] = useState(null);
+  let startX;
+  let X;
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (currentIndex !== children.length - 1) {
+        setCurrentIndex(currentIndex + 1);
+      } else {
+        setCurrentIndex(0);
+      }
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [currentIndex]);
   const leftArrowStyle = {
     position: "absolute",
     top: "50%",
@@ -36,36 +50,52 @@ const ImageSlider = ({ slides }) => {
 
   const goToPrev = () => {
     const isFirstSlide = currentIndex === 0;
-    const newIndex = isFirstSlide ? slides.length - 1 : currentIndex - 1;
+    const newIndex = isFirstSlide ? children.length - 1 : currentIndex - 1;
     setCurrentIndex(newIndex);
   };
   const goToNext = () => {
-    const isLastSlide = currentIndex === slides.length - 1;
+    const isLastSlide = currentIndex === children.length - 1;
     const newIndex = isLastSlide ? 0 : currentIndex + 1;
     setCurrentIndex(newIndex);
   };
   const goToSlide = (slideIndex) => {
     setCurrentIndex(slideIndex);
   };
+
   return (
-    <div className="h-full relative">
+    <div className="h-full relative" style={{ left: `${horizontalValue}px` }}>
       <div style={leftArrowStyle} onClick={goToPrev}>
         ←
+      </div>
+      <div
+        onMouseDown={(e) => {
+          startX = e.nativeEvent.offsetX;
+          e.target.style.cursor = "grabbing";
+          setSwiping(true);
+          goToNext();
+        }}
+        onMouseUp={(e) => {
+          e.target.style.cursor = "grab";
+          setSwiping(false);
+        }}
+        onMouseMove={(e) => {
+          e.target.style.cursor = "grab";
+          if (!isSwiping) {
+            e.preventDefault();
+            X = e.nativeEvent.offsetX;
+            setHorizontalValue(X - startX);
+          }
+        }}
+      >
+        {children[currentIndex]}
       </div>
       <div style={rightArrowStyle} onClick={goToNext}>
         →
       </div>
-      <motion.div
-        style={{
-          backgroundImage: `url(${slides[currentIndex]})`,
 
-          backgroundPosition: "center",
-          backgroundSize: "cover",
-        }}
-        className="w-full h-full rounded-xl"
-      ></motion.div>
+      {/* pagination */}
       <div style={dostsContainerStyles}>
-        {slides.map((slide, slideIndex) => (
+        {children.map((slide, slideIndex) => (
           <>
             <div
               key={slideIndex}
